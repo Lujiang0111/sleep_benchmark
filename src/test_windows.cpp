@@ -96,7 +96,7 @@ void Test(int argc, char **argv)
         }
 
         {
-            auto &&select_results = thread_result[0];
+            auto &&select_results = thread_result[1];
             fout << "select results:";
 
             for (auto item : select_results)

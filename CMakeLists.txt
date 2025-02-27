@@ -59,4 +59,5 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 if(os_name MATCHES "windows")
     target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32)
 else()
+    target_link_libraries(${PROJECT_NAME} PRIVATE pthread)
 endif()

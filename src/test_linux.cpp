@@ -20,9 +20,10 @@ static void Help(int argc, char **argv)
 
 void TestThread(int sleep_ns, std::vector<std::list<int64_t>> &results)
 {
-    results.resize(2);
+    results.resize(3);
     auto &&sleep_for_results = results[0];
     auto &&select_results = results[1];
+    auto &&clock_nanosleep_results = results[2];
     while (app_running)
     {
         // chrono::sleep_for
@@ -41,6 +42,23 @@ void TestThread(int sleep_ns, std::vector<std::list<int64_t>> &results)
 
             timeval timeout_tv = { 0, static_cast<long>(sleep_ns / 1000) };
             select(0, nullptr, nullptr, nullptr, &timeout_tv);
+
+            auto after_time = std::chrono::steady_clock::now();
+            select_results.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(after_time - start_time).count());
+        }
+
+        // clock_nanosleep
+        {
+            auto start_time = std::chrono::steady_clock::now();
+
+            struct timespec req, rem;
+            req.tv_sec = static_cast<time_t>(sleep_ns / 1000000000LL);
+            req.tv_nsec = static_cast<long>(sleep_ns % 1000000000LL);
+
+            while (clock_nanosleep(CLOCK_MONOTONIC, 0, &req, &rem) == EINTR)
+            {
+                req = rem;
+            }
 
             auto after_time = std::chrono::steady_clock::now();
             select_results.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(after_time - start_time).count());
@@ -95,10 +113,21 @@ void Test(int argc, char **argv)
         }
 
         {
-            auto &&select_results = thread_result[0];
+            auto &&select_results = thread_result[1];
             fout << "select results:";
 
             for (auto item : select_results)
+            {
+                fout << ", " << item;
+            }
+            fout << std::endl;
+        }
+
+        {
+            auto &&clock_nanosleep_results = thread_result[2];
+            fout << "clock_nanosleep results:";
+
+            for (auto item : clock_nanosleep_results)
             {
                 fout << ", " << item;
             }

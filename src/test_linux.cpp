@@ -55,10 +55,14 @@ void TestThread(int sleep_ns, std::vector<std::list<int64_t>> &results)
             req.tv_sec = static_cast<time_t>(sleep_ns / 1000000000LL);
             req.tv_nsec = static_cast<long>(sleep_ns % 1000000000LL);
 
+#if 1
             while (clock_nanosleep(CLOCK_MONOTONIC, 0, &req, &rem) == EINTR)
             {
                 req = rem;
             }
+#else
+            clock_nanosleep(CLOCK_MONOTONIC, 0, &req, &rem);
+#endif
 
             auto after_time = std::chrono::steady_clock::now();
             clock_nanosleep_results.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(after_time - start_time).count());

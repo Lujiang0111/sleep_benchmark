@@ -61,7 +61,7 @@ void TestThread(int sleep_ns, std::vector<std::list<int64_t>> &results)
             }
 
             auto after_time = std::chrono::steady_clock::now();
-            select_results.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(after_time - start_time).count());
+            clock_nanosleep_results.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(after_time - start_time).count());
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
